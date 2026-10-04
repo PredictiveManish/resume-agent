@@ -25,9 +25,11 @@ class Settings:
     base_url: str = "https://api.sarvam.ai/v1"
     model: str = "sarvam-105b"
     temperature: float = 0.3
-    max_tokens: int = 4096
-    # Sarvam thinking mode is ON by default and reasoning tokens bill as output.
-    # For resume rewriting we do not need it; None disables it (cheaper).
+    # Sarvam thinking mode is ON by default and reasoning tokens bill as output
+    # and count against max_tokens. If reasoning burns the whole budget, the
+    # final content comes back EMPTY -> keep headroom here (SARVAM_MAX_TOKENS).
+    max_tokens: int = 16384
+    # reasoning_effort: None disables thinking mode (cheaper).
     reasoning_effort: Optional[str] = None
     timeout: int = 180
 
@@ -38,5 +40,6 @@ class Settings:
             api_key=os.getenv("SARVAM_API_KEY"),
             base_url=os.getenv("SARVAM_BASE_URL", "https://api.sarvam.ai/v1"),
             model=os.getenv("SARVAM_MODEL", "sarvam-105b"),
+            max_tokens=int(os.getenv("SARVAM_MAX_TOKENS", "16384")),
             reasoning_effort=os.getenv("SARVAM_REASONING_EFFORT") or None,
         )

@@ -4,12 +4,16 @@ Also provides a MockLLM so the whole pipeline can be tested with no API key.
 """
 
 import json
+import logging
 import re
+import time
 from typing import Dict, List, Optional
 
 import requests
 
 from .config import Settings
+
+logger = logging.getLogger("resume_agent.llm")
 
 
 class LLMError(RuntimeError):
@@ -90,28 +94,59 @@ class SarvamClient:
         if want_json:
             payload["response_format"] = {"type": "json_object"}
 
+        logger.info(
+            "LLM request: model=%s endpoint=%s chars_in=%d max_tokens=%s json=%s",
+            s.model, self.endpoint, len(system) + len(user), payload["max_tokens"], want_json,
+        )
+        started = time.monotonic()
         try:
             resp = requests.post(
                 self.endpoint, headers=headers, json=payload, timeout=s.timeout
             )
         except requests.RequestException as e:
+            logger.exception("LLM request to %s failed: %s", self.endpoint, e)
             raise LLMError(f"Request to Sarvam failed: {e}") from e
 
+        logger.info(
+            "LLM response: %s -> HTTP %d in %.1fs (task=%s)",
+            s.model, resp.status_code, time.monotonic() - started, task or "-",
+        )
         if resp.status_code >= 400:
             # Some deployments reject response_format; retry once without it.
             if want_json and "response_format" in payload:
                 payload.pop("response_format", None)
+                logger.warning("Retrying without response_format...")
                 resp = requests.post(
                     self.endpoint, headers=headers, json=payload, timeout=s.timeout
                 )
             if resp.status_code >= 400:
+                logger.error("Sarvam API error %d: %s", resp.status_code, resp.text[:1000])
                 raise LLMError(f"Sarvam API error {resp.status_code}: {resp.text[:400]}")
 
-        data = resp.json()
         try:
-            return data["choices"][0]["message"]["content"]
+            data = resp.json()
+        except ValueError as e:
+            logger.error("Non-JSON body from Sarvam (HTTP %d): %s", resp.status_code, resp.text[:1000])
+            raise LLMError(f"Sarvam returned non-JSON body: {resp.text[:200]}") from e
+        try:
+            content = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as e:
+            logger.error("Unexpected response shape: %s", str(data)[:1000])
             raise LLMError(f"Unexpected response shape: {str(data)[:400]}") from e
+        if content is None or not str(content).strip():
+            # Log the FULL raw response — it shows whether tokens went to
+            # reasoning/thinking fields instead of the final answer.
+            logger.error(
+                "Empty content from %s (task=%s). Raw API response: %s",
+                s.model, task or "-", str(data)[:2000],
+            )
+            raise LLMError(
+                "Model returned an empty response (HTTP 200, no content). "
+                "Usual cause: thinking/reasoning consumed the whole max_tokens budget. "
+                "See server log for the raw API response; try a larger SARVAM_MAX_TOKENS."
+            )
+        logger.info("LLM response: %d chars of content", len(str(content)))
+        return content
 
 
 class MockLLM:

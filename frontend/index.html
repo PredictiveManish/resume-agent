@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resume Tailor — get past the screening</title>
+<style>
+  :root{
+    --bg:#f5f6fb; --panel:#ffffff; --text:#1a1d29; --muted:#6b7280;
+    --accent:#4f46e5; --accent-soft:#eef0fe; --green:#10b981; --green-soft:#e7f8f1;
+    --amber:#f59e0b; --amber-soft:#fef4e6; --red:#ef4444; --red-soft:#fdecec;
+    --border:#e6e8f0; --radius:16px; --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 15% -10%, #eef0fe 0%, var(--bg) 55%);
+    color:var(--text); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 20px 64px}
+  header.top{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:12px}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow)}
+  h1{font-size:19px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin:2px 0 0}
+  .badge{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--amber-soft);color:#b26a00;border:1px solid #f6dfae}
+  .badge.hidden{display:none}
+  .grid{display:grid;grid-template-columns:minmax(360px,440px) 1fr;gap:22px;align-items:start}
+  @media(max-width:940px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 16px}
+  label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
+  .hint{font-weight:400;color:var(--muted);font-size:12px}
+  .dropzone{border:1.5px dashed #cfd3e3;border-radius:12px;padding:22px;text-align:center;cursor:pointer;
+    transition:.15s;background:#fbfbfe;color:var(--muted)}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .dropzone strong{color:var(--text);display:block;margin-bottom:2px}
+  .filechip{display:none;align-items:center;gap:10px;margin-top:10px;padding:9px 12px;border-radius:10px;
+    background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:13px}
+  .filechip.show{display:flex}
+  .filechip button{margin-left:auto;border:0;background:none;color:var(--accent);cursor:pointer;font-size:16px;line-height:1}
+  textarea,input[type=url],input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;
+    padding:11px 12px;font:inherit;color:var(--text);background:#fff;resize:vertical}
+  textarea:focus,input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  textarea{min-height:96px}
+  #jd{min-height:150px}
+  .proofrow{display:flex;gap:8px}
+  .proofrow button{flex:none;border:1px solid var(--border);background:#fff;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer;color:var(--text)}
+  .proofrow button:hover{border-color:var(--accent);color:var(--accent)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 9px;border-radius:999px;
+    background:#f1f2f8;color:#414564;border:1px solid var(--border)}
+  .chip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:13px}
+  .btn{width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:15px;
+    color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);cursor:pointer;box-shadow:0 6px 18px rgba(79,70,229,.28)}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+  .btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent);box-shadow:none}
+  .placeholder{color:var(--muted);text-align:center;padding:60px 20px}
+  .placeholder .big{font-size:40px;margin-bottom:8px}
+  .scorewrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:20px}
+  .donut{position:relative;width:132px;height:132px;flex:none}
+  .donut svg{transform:rotate(-90deg)}
+  .donut .val{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800}
+  .donut .val small{font-size:12px;font-weight:600;color:var(--muted);display:block;text-align:center}
+  .scoredetail{flex:1;min-width:200px}
+  .scoredetail h3{margin:0 0 2px;font-size:17px}
+  .scoredetail p{margin:0;color:var(--muted);font-size:13px}
+  .subbars{margin-top:12px;display:grid;gap:8px}
+  .subbar{display:grid;grid-template-columns:130px 1fr 38px;gap:10px;align-items:center;font-size:12.5px}
+  .track{height:8px;border-radius:999px;background:#eef0f6;overflow:hidden}
+  .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+  .sec{margin:22px 0 8px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .kwgroup{display:flex;flex-wrap:wrap;gap:7px}
+  .kw{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:8px}
+  .kw.ok{background:var(--green-soft);color:#0a7a58}
+  .kw.miss{background:var(--amber-soft);color:#a9690a}
+  ul.plain{margin:6px 0 0;padding-left:18px}
+  ul.plain li{margin:5px 0}
+  .change{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin:10px 0;background:#fcfcfe}
+  .change .secname{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+  .ba{display:grid;gap:6px;margin:8px 0}
+  .ba .line{display:flex;gap:8px;font-size:13.5px}
+  .ba .tag{flex:none;width:52px;color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;padding-top:2px}
+  .ba .before{color:#8a4b4b;text-decoration:line-through;text-decoration-color:#e3b8b8}
+  .ba .after{color:#0a6b50}
+  .reason{color:var(--muted);font-size:13px;margin-top:6px;border-top:1px dashed var(--border);padding-top:7px}
+  .proofrowitem{display:flex;align-items:center;gap:9px;font-size:13px;padding:7px 0}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .dot.ok{background:var(--green)} .dot.bad{background:var(--red)}
+  .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .actions .btn{width:auto;margin:0;padding:12px 18px}
+  details.latex{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:#fbfbfe}
+  details.latex summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:13px;color:var(--muted)}
+  pre{margin:0;padding:0 14px 14px;overflow:auto;font-size:12px;line-height:1.5;color:#2b2f45}
+  .overlay{position:fixed;inset:0;background:rgba(245,246,251,.82);backdrop-filter:blur(3px);display:none;place-items:center;z-index:20}
+  .overlay.show{display:grid}
+  .spinner{width:46px;height:46px;border-radius:50%;border:4px solid #e0e3f0;border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .overlay .msg{text-align:center;font-weight:600}
+  .overlay .msg small{display:block;color:var(--muted);font-weight:400;margin-top:6px}
+  .error{background:var(--red-soft);border:1px solid #f6c9c9;color:#a12828;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:16px;display:none}
+  .error.show{display:block}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">RT</div>
+      <div>
+        <h1>Resume Tailor</h1>
+        <p class="sub">Tailor your resume to a job description — and see exactly what changed, and why.</p>
+      </div>
+    </div>
+    <span id="demoBadge" class="badge hidden">Demo mode — no API key</span>
+  </header>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <section class="card">
+      <h2>Your inputs</h2>
+
+      <label>1 · Your resume <span class="hint">(.tex, .pdf or .txt)</span></label>
+      <div id="drop" class="dropzone">
+        <strong>Drop your resume here</strong>
+        or click to choose a file
+        <input id="file" type="file" accept=".tex,.pdf,.txt,.latex" hidden />
+      </div>
+      <div id="filechip" class="filechip"><span id="filename"></span><button type="button" id="clearfile" title="Remove">&times;</button></div>
+
+      <label for="resumeText">…or paste your resume text <span class="hint">(used only if no file is chosen)</span></label>
+      <textarea id="resumeText" placeholder="Paste your resume text here if you don't have a file."></textarea>
+
+      <label for="jd">2 · The job description <span class="hint">(paste the whole JD)</span></label>
+      <textarea id="jd" placeholder="Paste the job description here…"></textarea>
+
+      <label for="proofInput">3 · Proof links <span class="hint">(optional — e.g. your GitHub repo)</span></label>
+      <div class="proofrow">
+        <input id="proofInput" type="url" placeholder="https://github.com/you/project" />
+        <button type="button" id="addProof">Add</button>
+      </div>
+      <div id="proofChips" class="chips"></div>
+
+      <button class="btn" id="go">Tailor my resume</button>
+      <div id="error" class="error"></div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card" id="results">
+      <h2>Your results</h2>
+      <div id="placeholder" class="placeholder">
+        <div class="big">📄</div>
+        Fill in your resume and the job description, then hit <b>Tailor my resume</b>.<br />
+        You'll get a match score, a preview of every change, and a LaTeX file for Overleaf.
+      </div>
+      <div id="output" style="display:none"></div>
+    </section>
+  </div>
+
+  <footer>Your resume is processed by the Sarvam API. This tool reframes what you have — it never invents experience.</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="msg">Tailoring your resume…
+    <small id="overlaySub">Analysing your resume against the job description.</small>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let proofUrls = [];
+
+/* ---------- file handling ---------- */
+const drop = $("drop"), fileInput = $("file");
+drop.addEventListener("click", () => fileInput.click());
+["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.add("drag");}));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.remove("drag");}));
+drop.addEventListener("drop", ev => { if (ev.dataTransfer.files.length) { fileInput.files = ev.dataTransfer.files; showFile(); }});
+fileInput.addEventListener("change", showFile);
+$("clearfile").addEventListener("click", () => { fileInput.value = ""; $("filechip").classList.remove("show"); });
+function showFile(){ if (fileInput.files.length){ $("filename").textContent = fileInput.files[0].name; $("filechip").classList.add("show"); } }
+
+/* ---------- proof chips ---------- */
+function renderProofs(){
+  const box = $("proofChips"); box.innerHTML = "";
+  proofUrls.forEach((u, i) => {
+    const c = document.createElement("span"); c.className = "chip";
+    c.appendChild(document.createTextNode(u));
+    const b = document.createElement("button"); b.textContent = "×"; b.title = "Remove";
+    b.onclick = () => { proofUrls.splice(i,1); renderProofs(); };
+    c.appendChild(b); box.appendChild(c);
+  });
+}
+$("addProof").addEventListener("click", addProof);
+$("proofInput").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); addProof(); }});
+function addProof(){
+  const v = $("proofInput").value.trim();
+  if (v && !proofUrls.includes(v)) { proofUrls.push(v); renderProofs(); }
+  $("proofInput").value = "";
+}
+
+/* ---------- helpers ---------- */
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+function donut(score){
+  const r = 56, c = 2*Math.PI*r, off = c*(1 - score/100);
+  const color = score >= 75 ? "#10b981" : score >= 50 ? "#f59e0b" : "#ef4444";
+  return `<div class="donut"><svg width="132" height="132" viewBox="0 0 132 132">
+      <circle cx="66" cy="66" r="${r}" fill="none" stroke="#eef0f6" stroke-width="12"/>
+      <circle cx="66" cy="66" r="${r}" fill="none" stroke="${color}" stroke-width="12"
+        stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+    </svg><div class="val">${score}<small>/ 100</small></div></div>`;
+}
+
+function render(r){
+  const m = r.match;
+  let html = "";
+  html += `<div class="scorewrap">${donut(m.score)}
+    <div class="scoredetail"><h3>JD-match score</h3>
+      <p>A heuristic based on keyword coverage, formatting health and quantified impact — not an official ATS score.</p>
+      <div class="subbars">` +
+      Object.entries(m.subscores).map(([k,v]) =>
+        `<div class="subbar"><span>${esc(k.replace(/_/g," "))}</span><div class="track"><div class="fill" style="width:${v}%"></div></div><span>${v}</span></div>`
+      ).join("") + `</div></div></div>`;
+
+  html += `<div class="sec">Keywords</div><div class="kwgroup">` +
+    m.matched_keywords.map(k => `<span class="kw ok">${esc(k)}</span>`).join("") +
+    m.missing_keywords.map(k => `<span class="kw miss">${esc(k)}</span>`).join("") + `</div>`;
+
+  if (m.gaps && m.gaps.length){
+    html += `<div class="sec">What's holding you back</div><ul class="plain">` +
+      m.gaps.map(g => `<li>${esc(g)}</li>`).join("") + `</ul>`;
+  }
+  if (m.suggestions && m.suggestions.length){
+    html += `<div class="sec">Suggestions</div><ul class="plain">` +
+      m.suggestions.map(s => `<li>${esc(s)}</li>`).join("") + `</ul>`;
+  }
+
+  if (r.proofs && r.proofs.length){
+    html += `<div class="sec">Proof checks</div>` +
+      r.proofs.map(p => `<div class="proofrowitem"><span class="dot ${p.ok?"ok":"bad"}"></span>
+        <span>${esc(p.url)}${p.detail ? " — " + esc(p.detail) : ""}</span></div>`).join("");
+  }
+
+  if (r.changes && r.changes.length){
+    html += `<div class="sec">Preview of changes (${r.changes.length})</div>`;
+    html += r.changes.map(c => `<div class="change">
+        <div class="secname">${esc(c.section)}</div>
+        <div class="ba">
+          <div class="line"><span class="tag">Before</span><span class="before">${esc(c.before) || "(none)"}</span></div>
+          <div class="line"><span class="tag">After</span><span class="after">${esc(c.after)}</span></div>
+        </div>
+        <div class="reason">${esc(c.reason)}</div>
+      </div>`).join("");
+  }
+
+  html += `<div class="actions">
+      <button class="btn" id="dl">⬇ Download .tex for Overleaf</button>
+      <button class="btn ghost" id="copy">Copy LaTeX</button>
+    </div>
+    <details class="latex"><summary>Preview the generated LaTeX</summary><pre id="texpre"></pre></details>`;
+
+  $("output").innerHTML = html;
+  $("texpre").textContent = r.new_tex;
+  $("dl").onclick = () => downloadTex(r.new_tex);
+  $("copy").onclick = async (e) => {
+    try { await navigator.clipboard.writeText(r.new_tex); e.target.textContent = "Copied!"; setTimeout(()=>e.target.textContent="Copy LaTeX",1400);} catch(_){}
+  };
+  $("placeholder").style.display = "none";
+  $("output").style.display = "block";
+}
+
+function downloadTex(tex){
+  const blob = new Blob([tex], {type:"text/x-tex"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "tailored-resume.tex";
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+
+/* ---------- submit ---------- */
+$("go").addEventListener("click", async () => {
+  $("error").classList.remove("show");
+  const jd = $("jd").value.trim();
+  const text = $("resumeText").value.trim();
+  if (!jd){ showError("Please paste the job description."); return; }
+  if (!fileInput.files.length && !text){ showError("Please upload a resume file or paste your resume text."); return; }
+
+  const fd = new FormData();
+  fd.append("jd_text", jd);
+  if (fileInput.files.length) fd.append("resume_file", fileInput.files[0]);
+  else fd.append("resume_text", text);
+  if (proofUrls.length) fd.append("proofs", proofUrls.join(","));
+
+  $("overlay").classList.add("show");
+  $("go").disabled = true;
+  const t1 = setTimeout(()=> $("overlaySub").textContent = "Writing your tailored resume…", 12000);
+  try {
+    const res = await fetch("/tailor", {method:"POST", body: fd});
+    if (!res.ok){
+      let msg = "Something went wrong.";
+      try { const j = await res.json(); msg = j.detail || msg; } catch(_){}
+      throw new Error(msg);
+    }
+    render(await res.json());
+  } catch (e){
+    showError(e.message);
+  } finally {
+    clearTimeout(t1);
+    $("overlay").classList.remove("show");
+    $("go").disabled = false;
+  }
+});
+function showError(msg){ const el = $("error"); el.textContent = msg; el.classList.add("show"); }
+
+/* ---------- demo badge ---------- */
+fetch("/health").then(r => r.json()).then(d => { if (d.mock) $("demoBadge").classList.remove("hidden"); }).catch(()=>{});
+</script>
+</body>
+</html>

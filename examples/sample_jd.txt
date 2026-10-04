@@ -1,0 +1,18 @@
+Job Title: Backend Engineer (Python)
+
+We are looking for a backend engineer to build and scale our APIs.
+
+Requirements:
+- 2+ years of experience with Python
+- Strong experience with FastAPI or similar web frameworks
+- Experience with Docker and containerised deployments
+- Working knowledge of SQL databases (PostgreSQL preferred)
+- Familiarity with REST API design and testing
+- Experience with CI/CD and cloud deployment is a plus
+- Good understanding of data structures and algorithms
+
+Responsibilities:
+- Design, build, and maintain REST APIs
+- Write clean, tested, production-quality Python
+- Containerise and deploy services with Docker
+- Collaborate with frontend and product teams

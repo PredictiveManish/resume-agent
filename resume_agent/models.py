@@ -15,9 +15,7 @@ class Experience:
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Experience":
         return cls(
-            title=d.get("title", ""),
-            org=d.get("org", ""),
-            dates=d.get("dates", ""),
+            title=d.get("title", ""), org=d.get("org", ""), dates=d.get("dates", ""),
             location=d.get("location", ""),
             bullets=[str(b) for b in d.get("bullets", [])],
         )
@@ -33,9 +31,7 @@ class Project:
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Project":
         return cls(
-            name=d.get("name", ""),
-            link=d.get("link", ""),
-            tech=d.get("tech", ""),
+            name=d.get("name", ""), link=d.get("link", ""), tech=d.get("tech", ""),
             bullets=[str(b) for b in d.get("bullets", [])],
         )
 
@@ -50,10 +46,8 @@ class Education:
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Education":
         return cls(
-            degree=d.get("degree", ""),
-            institution=d.get("institution", ""),
-            dates=d.get("dates", ""),
-            details=d.get("details", ""),
+            degree=d.get("degree", ""), institution=d.get("institution", ""),
+            dates=d.get("dates", ""), details=d.get("details", ""),
         )
 
 
@@ -75,12 +69,10 @@ class ResumeData:
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "ResumeData":
         skills = d.get("skills", {}) or {}
-        if isinstance(skills, list):  # tolerate a flat list
+        if isinstance(skills, list):
             skills = {"Skills": skills}
         return cls(
-            name=d.get("name", ""),
-            email=d.get("email", ""),
-            phone=d.get("phone", ""),
+            name=d.get("name", ""), email=d.get("email", ""), phone=d.get("phone", ""),
             location=d.get("location", ""),
             links=[str(x) for x in d.get("links", [])],
             summary=d.get("summary", ""),
@@ -90,21 +82,46 @@ class ResumeData:
             education=[Education.from_dict(e) for e in d.get("education", [])],
         )
 
+    def to_text(self) -> str:
+        """Plain-text projection, for scoring (not for display)."""
+        parts = [self.name, self.summary]
+        for group, items in self.skills.items():
+            parts.append(f"{group}: " + ", ".join(items))
+        for e in self.experience:
+            parts.append(f"{e.title} {e.org} {e.dates} {e.location}")
+            parts.extend(e.bullets)
+        for p in self.projects:
+            parts.append(f"{p.name} {p.tech} {p.link}")
+            parts.extend(p.bullets)
+        for e in self.education:
+            parts.append(f"{e.degree} {e.institution} {e.dates} {e.details}")
+        return "\n".join(x for x in parts if x)
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
 
 @dataclass
 class MatchReport:
+    """ATS-style match report. `score` is the score AFTER tailoring."""
+
     score: int
     subscores: Dict[str, int]
+    score_before: int = 0
+    subscores_before: Dict[str, int] = field(default_factory=dict)
     matched_keywords: List[str] = field(default_factory=list)
     missing_keywords: List[str] = field(default_factory=list)
     gaps: List[str] = field(default_factory=list)
     suggestions: List[str] = field(default_factory=list)
 
+    @property
+    def delta(self) -> int:
+        return self.score - self.score_before
+
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["delta"] = self.delta
+        return d
 
 
 @dataclass
@@ -139,6 +156,10 @@ class PipelineResult:
     old_text: str
     model: str
     input_format: str
+    cost_inr: float = 0.0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    calls: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -149,4 +170,11 @@ class PipelineResult:
             "new_tex": self.new_tex,
             "model": self.model,
             "input_format": self.input_format,
+            "cost": {
+                "cost_inr": round(self.cost_inr, 4),
+                "prompt_tokens": self.prompt_tokens,
+                "completion_tokens": self.completion_tokens,
+                "calls": self.calls,
+                "model": self.model,
+            },
         }

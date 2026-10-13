@@ -6,103 +6,120 @@
 <title>Resume Tailor — get past the screening</title>
 <style>
   :root{
-    --bg:#f5f6fb; --panel:#ffffff; --text:#1a1d29; --muted:#6b7280;
-    --accent:#4f46e5; --accent-soft:#eef0fe; --green:#10b981; --green-soft:#e7f8f1;
-    --amber:#f59e0b; --amber-soft:#fef4e6; --red:#ef4444; --red-soft:#fdecec;
+    --bg:#f4f5fa; --panel:#ffffff; --text:#1a1d29; --muted:#6b7280;
+    --accent:#4f46e5; --accent-soft:#eef0fe; --green:#0f9d68; --green-soft:#e6f6ef;
+    --amber:#c47d0a; --amber-soft:#fdf3e2; --red:#d64545; --red-soft:#fdecec;
     --border:#e6e8f0; --radius:16px; --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box; min-width:0}
   body{
-    margin:0; background:radial-gradient(1200px 600px at 15% -10%, #eef0fe 0%, var(--bg) 55%);
+    margin:0; background:radial-gradient(1200px 600px at 15% -10%, #eceefe 0%, var(--bg) 55%);
     color:var(--text); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
     min-height:100vh;
   }
-  .wrap{max-width:1180px; margin:0 auto; padding:28px 20px 64px}
-  header.top{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap}
-  .brand{display:flex; align-items:center; gap:12px}
+  .wrap{max-width:1180px; margin:0 auto; padding:26px 18px 64px}
+  header.top{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:20px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0}
   .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
-    display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow)}
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow);flex:none}
   h1{font-size:19px;margin:0;letter-spacing:-.01em}
   .sub{color:var(--muted);font-size:13px;margin:2px 0 0}
-  .badge{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--amber-soft);color:#b26a00;border:1px solid #f6dfae}
+  .badge{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--amber-soft);color:#9a6400;border:1px solid #f4dfb4}
   .badge.hidden{display:none}
-  .grid{display:grid;grid-template-columns:minmax(360px,440px) 1fr;gap:22px;align-items:start}
-  @media(max-width:940px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
-  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 16px}
+  .grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:20px;align-items:start}
+  @media(max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;min-width:0}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 14px}
   label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
   .hint{font-weight:400;color:var(--muted);font-size:12px}
-  .dropzone{border:1.5px dashed #cfd3e3;border-radius:12px;padding:22px;text-align:center;cursor:pointer;
+  .dropzone{border:1.5px dashed #cfd3e3;border-radius:12px;padding:20px;text-align:center;cursor:pointer;
     transition:.15s;background:#fbfbfe;color:var(--muted)}
   .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
   .dropzone strong{color:var(--text);display:block;margin-bottom:2px}
   .filechip{display:none;align-items:center;gap:10px;margin-top:10px;padding:9px 12px;border-radius:10px;
     background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:13px}
   .filechip.show{display:flex}
+  .filechip span{overflow-wrap:anywhere}
   .filechip button{margin-left:auto;border:0;background:none;color:var(--accent);cursor:pointer;font-size:16px;line-height:1}
   textarea,input[type=url],input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;
     padding:11px 12px;font:inherit;color:var(--text);background:#fff;resize:vertical}
   textarea:focus,input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
-  textarea{min-height:96px}
-  #jd{min-height:150px}
+  textarea{min-height:88px} #jd{min-height:150px}
   .proofrow{display:flex;gap:8px}
   .proofrow button{flex:none;border:1px solid var(--border);background:#fff;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer;color:var(--text)}
   .proofrow button:hover{border-color:var(--accent);color:var(--accent)}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 9px;border-radius:999px;
-    background:#f1f2f8;color:#414564;border:1px solid var(--border)}
-  .chip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:13px}
-  .btn{width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:15px;
-    color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);cursor:pointer;box-shadow:0 6px 18px rgba(79,70,229,.28)}
+    background:#f1f2f8;color:#414564;border:1px solid var(--border);overflow-wrap:anywhere}
+  .chip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:13px;flex:none}
+  .btn{width:100%;margin-top:18px;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:700;font-size:15px;
+    color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);cursor:pointer;box-shadow:0 6px 18px rgba(79,70,229,.26)}
   .btn:hover{filter:brightness(1.05)}
   .btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
   .btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent);box-shadow:none}
-  .placeholder{color:var(--muted);text-align:center;padding:60px 20px}
-  .placeholder .big{font-size:40px;margin-bottom:8px}
-  .scorewrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:20px}
-  .donut{position:relative;width:132px;height:132px;flex:none}
-  .donut svg{transform:rotate(-90deg)}
-  .donut .val{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800}
-  .donut .val small{font-size:12px;font-weight:600;color:var(--muted);display:block;text-align:center}
-  .scoredetail{flex:1;min-width:200px}
-  .scoredetail h3{margin:0 0 2px;font-size:17px}
-  .scoredetail p{margin:0;color:var(--muted);font-size:13px}
-  .subbars{margin-top:12px;display:grid;gap:8px}
-  .subbar{display:grid;grid-template-columns:130px 1fr 38px;gap:10px;align-items:center;font-size:12.5px}
-  .track{height:8px;border-radius:999px;background:#eef0f6;overflow:hidden}
-  .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
-  .sec{margin:22px 0 8px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .placeholder{color:var(--muted);text-align:center;padding:56px 16px}
+  .placeholder .big{font-size:38px;margin-bottom:8px}
+
+  /* --- ATS headline --- */
+  .ats-head{display:flex;flex-wrap:wrap;gap:18px;align-items:center;border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:16px}
+  .ats-big{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:118px;height:118px;border-radius:50%;border:8px solid var(--accent-soft);position:relative}
+  .ats-num{font-size:34px;font-weight:800;line-height:1}
+  .ats-cap{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+  .ats-meta{flex:1 1 220px;min-width:0}
+  .ats-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .was{color:var(--muted);font-weight:600;font-size:14px}
+  .now{font-size:22px;font-weight:800}
+  .delta{font-weight:800;font-size:14px;padding:3px 9px;border-radius:999px}
+  .delta.up{background:var(--green-soft);color:var(--green)}
+  .delta.down{background:var(--red-soft);color:var(--red)}
+  .delta.flat{background:#eef0f6;color:var(--muted)}
+  .ats-meta .hint{display:block;margin-top:6px}
+
+  /* --- subscore bars: stacked so they can NEVER overflow --- */
+  .subs{display:grid;gap:10px;margin:6px 0 4px}
+  .sub{min-width:0}
+  .subtop{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:4px}
+  .subname{color:var(--muted);overflow-wrap:anywhere}
+  .subval{font-weight:700;flex:none}
+  .track{width:100%;height:8px;border-radius:999px;background:#eef0f6;overflow:hidden}
+  .fill{height:100%;max-width:100%;border-radius:999px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+  .was-mini{font-weight:600;color:var(--muted);font-size:11.5px;margin-left:6px}
+
+  .sec{margin:20px 0 8px;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   .kwgroup{display:flex;flex-wrap:wrap;gap:7px}
-  .kw{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:8px}
-  .kw.ok{background:var(--green-soft);color:#0a7a58}
-  .kw.miss{background:var(--amber-soft);color:#a9690a}
+  .kw{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:8px;overflow-wrap:anywhere}
+  .kw.ok{background:var(--green-soft);color:#0a6b4c}
+  .kw.miss{background:var(--amber-soft);color:#9a6400}
   ul.plain{margin:6px 0 0;padding-left:18px}
-  ul.plain li{margin:5px 0}
-  .change{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin:10px 0;background:#fcfcfe}
+  ul.plain li{margin:5px 0;overflow-wrap:anywhere}
+  .change{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin:10px 0;background:#fcfcfe;min-width:0}
   .change .secname{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
   .ba{display:grid;gap:6px;margin:8px 0}
-  .ba .line{display:flex;gap:8px;font-size:13.5px}
+  .ba .line{display:flex;gap:8px;font-size:13.5px;min-width:0}
   .ba .tag{flex:none;width:52px;color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;padding-top:2px}
+  .ba .txt{overflow-wrap:anywhere}
   .ba .before{color:#8a4b4b;text-decoration:line-through;text-decoration-color:#e3b8b8}
   .ba .after{color:#0a6b50}
-  .reason{color:var(--muted);font-size:13px;margin-top:6px;border-top:1px dashed var(--border);padding-top:7px}
-  .proofrowitem{display:flex;align-items:center;gap:9px;font-size:13px;padding:7px 0}
-  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .reason{color:var(--muted);font-size:13px;margin-top:6px;border-top:1px dashed var(--border);padding-top:7px;overflow-wrap:anywhere}
+  .proofitem{display:flex;align-items:flex-start;gap:9px;font-size:13px;padding:6px 0;overflow-wrap:anywhere}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:6px}
   .dot.ok{background:var(--green)} .dot.bad{background:var(--red)}
-  .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
-  .actions .btn{width:auto;margin:0;padding:12px 18px}
-  details.latex{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:#fbfbfe}
+  .actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .actions .btn{width:auto;margin:0;padding:12px 16px;flex:1 1 auto}
+  .costline{margin-top:12px;font-size:12.5px;color:var(--muted)}
+  details.latex{margin-top:14px;border:1px solid var(--border);border-radius:12px;background:#fbfbfe}
   details.latex summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:13px;color:var(--muted)}
-  pre{margin:0;padding:0 14px 14px;overflow:auto;font-size:12px;line-height:1.5;color:#2b2f45}
-  .overlay{position:fixed;inset:0;background:rgba(245,246,251,.82);backdrop-filter:blur(3px);display:none;place-items:center;z-index:20}
+  pre{margin:0;padding:0 14px 14px;overflow:auto;font-size:12px;line-height:1.5;color:#2b2f45;white-space:pre-wrap;overflow-wrap:anywhere}
+  .overlay{position:fixed;inset:0;background:rgba(244,245,250,.82);backdrop-filter:blur(3px);display:none;place-items:center;z-index:20;padding:20px}
   .overlay.show{display:grid}
   .spinner{width:46px;height:46px;border-radius:50%;border:4px solid #e0e3f0;border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 16px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .overlay .msg{text-align:center;font-weight:600}
   .overlay .msg small{display:block;color:var(--muted);font-weight:400;margin-top:6px}
-  .error{background:var(--red-soft);border:1px solid #f6c9c9;color:#a12828;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:16px;display:none}
+  .error{background:var(--red-soft);border:1px solid #f6c9c9;color:#9a2b2b;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:14px;display:none;overflow-wrap:anywhere}
   .error.show{display:block}
-  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:28px}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:26px}
 </style>
 </head>
 <body>
@@ -112,7 +129,7 @@
       <div class="logo">RT</div>
       <div>
         <h1>Resume Tailor</h1>
-        <p class="sub">Tailor your resume to a job description — and see exactly what changed, and why.</p>
+        <p class="sub">Tailor your resume to a job description — see your ATS score move, and exactly what changed.</p>
       </div>
     </div>
     <span id="demoBadge" class="badge hidden">Demo mode — no API key</span>
@@ -149,12 +166,12 @@
     </section>
 
     <!-- RESULTS -->
-    <section class="card" id="results">
+    <section class="card">
       <h2>Your results</h2>
       <div id="placeholder" class="placeholder">
         <div class="big">📄</div>
         Fill in your resume and the job description, then hit <b>Tailor my resume</b>.<br />
-        You'll get a match score, a preview of every change, and a LaTeX file for Overleaf.
+        You'll get your ATS score before and after, a preview of every change, and a LaTeX/PDF file.
       </div>
       <div id="output" style="display:none"></div>
     </section>
@@ -172,6 +189,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 let proofUrls = [];
+let canCompilePdf = false;
 
 /* ---------- file handling ---------- */
 const drop = $("drop"), fileInput = $("file");
@@ -204,31 +222,47 @@ function addProof(){
 
 /* ---------- helpers ---------- */
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const clamp = (n) => Math.max(0, Math.min(100, Number(n) || 0));
 
-function donut(score){
-  const r = 56, c = 2*Math.PI*r, off = c*(1 - score/100);
-  const color = score >= 75 ? "#10b981" : score >= 50 ? "#f59e0b" : "#ef4444";
-  return `<div class="donut"><svg width="132" height="132" viewBox="0 0 132 132">
-      <circle cx="66" cy="66" r="${r}" fill="none" stroke="#eef0f6" stroke-width="12"/>
-      <circle cx="66" cy="66" r="${r}" fill="none" stroke="${color}" stroke-width="12"
-        stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
-    </svg><div class="val">${score}<small>/ 100</small></div></div>`;
+function bar(name, val, before){
+  const v = clamp(val);
+  const b = (before === undefined || before === null) ? "" : `<span class="was-mini">was ${clamp(before)}</span>`;
+  return `<div class="sub">
+      <div class="subtop"><span class="subname">${esc(name.replace(/_/g," "))}</span>
+        <span class="subval">${v}${b}</span></div>
+      <div class="track"><div class="fill" style="width:${v}%"></div></div>
+    </div>`;
 }
 
 function render(r){
   const m = r.match;
-  let html = "";
-  html += `<div class="scorewrap">${donut(m.score)}
-    <div class="scoredetail"><h3>JD-match score</h3>
-      <p>A heuristic based on keyword coverage, formatting health and quantified impact — not an official ATS score.</p>
-      <div class="subbars">` +
-      Object.entries(m.subscores).map(([k,v]) =>
-        `<div class="subbar"><span>${esc(k.replace(/_/g," "))}</span><div class="track"><div class="fill" style="width:${v}%"></div></div><span>${v}</span></div>`
-      ).join("") + `</div></div></div>`;
+  const delta = m.delta != null ? m.delta : (m.score - (m.score_before || 0));
+  const dcls = delta > 0 ? "up" : (delta < 0 ? "down" : "flat");
+  const dsign = delta > 0 ? "▲ +" + delta : (delta < 0 ? "▼ " + delta : "± 0");
 
+  let html = "";
+  // --- ATS headline ---
+  html += `<div class="ats-head">
+      <div class="ats-big"><div class="ats-num">${clamp(m.score)}</div><div class="ats-cap">ATS score</div></div>
+      <div class="ats-meta">
+        <div class="ats-line">
+          <span class="was">was ${clamp(m.score_before)}</span>
+          <span class="now">now ${clamp(m.score)}</span>
+          <span class="delta ${dcls}">${dsign}</span>
+        </div>
+        <span class="hint">A heuristic JD-match score (keyword coverage, formatting, quantified impact) — not an official ATS score.</span>
+      </div>
+    </div>`;
+
+  // --- subscore bars ---
+  html += `<div class="subs">` +
+    Object.entries(m.subscores).map(([k,v]) => bar(k, v, (m.subscores_before||{})[k])).join("") +
+    `</div>`;
+
+  // --- keywords ---
   html += `<div class="sec">Keywords</div><div class="kwgroup">` +
-    m.matched_keywords.map(k => `<span class="kw ok">${esc(k)}</span>`).join("") +
-    m.missing_keywords.map(k => `<span class="kw miss">${esc(k)}</span>`).join("") + `</div>`;
+    (m.matched_keywords||[]).map(k => `<span class="kw ok">${esc(k)}</span>`).join("") +
+    (m.missing_keywords||[]).map(k => `<span class="kw miss">${esc(k)}</span>`).join("") + `</div>`;
 
   if (m.gaps && m.gaps.length){
     html += `<div class="sec">What's holding you back</div><ul class="plain">` +
@@ -238,34 +272,41 @@ function render(r){
     html += `<div class="sec">Suggestions</div><ul class="plain">` +
       m.suggestions.map(s => `<li>${esc(s)}</li>`).join("") + `</ul>`;
   }
-
   if (r.proofs && r.proofs.length){
     html += `<div class="sec">Proof checks</div>` +
-      r.proofs.map(p => `<div class="proofrowitem"><span class="dot ${p.ok?"ok":"bad"}"></span>
+      r.proofs.map(p => `<div class="proofitem"><span class="dot ${p.ok?"ok":"bad"}"></span>
         <span>${esc(p.url)}${p.detail ? " — " + esc(p.detail) : ""}</span></div>`).join("");
   }
-
   if (r.changes && r.changes.length){
     html += `<div class="sec">Preview of changes (${r.changes.length})</div>`;
     html += r.changes.map(c => `<div class="change">
         <div class="secname">${esc(c.section)}</div>
         <div class="ba">
-          <div class="line"><span class="tag">Before</span><span class="before">${esc(c.before) || "(none)"}</span></div>
-          <div class="line"><span class="tag">After</span><span class="after">${esc(c.after)}</span></div>
+          <div class="line"><span class="tag">Before</span><span class="txt before">${esc(c.before) || "(none)"}</span></div>
+          <div class="line"><span class="tag">After</span><span class="txt after">${esc(c.after)}</span></div>
         </div>
         <div class="reason">${esc(c.reason)}</div>
       </div>`).join("");
   }
 
+  // --- actions ---
+  const pdfBtn = canCompilePdf ? `<button class="btn" id="pdf">⬇ Download PDF</button>` : "";
   html += `<div class="actions">
-      <button class="btn" id="dl">⬇ Download .tex for Overleaf</button>
+      ${pdfBtn}
+      <button class="btn ghost" id="dl">⬇ Download .tex</button>
       <button class="btn ghost" id="copy">Copy LaTeX</button>
-    </div>
-    <details class="latex"><summary>Preview the generated LaTeX</summary><pre id="texpre"></pre></details>`;
+    </div>`;
+
+  const c = r.cost || {};
+  if (c.cost_inr != null){
+    html += `<div class="costline">Cost: ₹${Number(c.cost_inr).toFixed(4)} · ${c.prompt_tokens||0} in / ${c.completion_tokens||0} out tokens · ${c.calls||1} call(s) · ${esc(c.model||"")}</div>`;
+  }
+  html += `<details class="latex"><summary>Preview the generated LaTeX</summary><pre id="texpre"></pre></details>`;
 
   $("output").innerHTML = html;
   $("texpre").textContent = r.new_tex;
   $("dl").onclick = () => downloadTex(r.new_tex);
+  if (canCompilePdf && $("pdf")) $("pdf").onclick = () => downloadPdf(r.new_tex);
   $("copy").onclick = async (e) => {
     try { await navigator.clipboard.writeText(r.new_tex); e.target.textContent = "Copied!"; setTimeout(()=>e.target.textContent="Copy LaTeX",1400);} catch(_){}
   };
@@ -273,11 +314,23 @@ function render(r){
   $("output").style.display = "block";
 }
 
-function downloadTex(tex){
-  const blob = new Blob([tex], {type:"text/x-tex"});
+function saveBlob(blob, name){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "tailored-resume.tex";
+  a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+function downloadTex(tex){ saveBlob(new Blob([tex], {type:"text/x-tex"}), "tailored-resume.tex"); }
+
+async function downloadPdf(tex){
+  const btn = $("pdf"); if (btn){ btn.disabled = true; btn.textContent = "Compiling…"; }
+  try {
+    const res = await fetch("/compile", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({tex})
+    });
+    if (!res.ok){ let m="PDF compilation failed."; try{ m=(await res.json()).detail||m; }catch(_){} throw new Error(m); }
+    saveBlob(await res.blob(), "tailored-resume.pdf");
+  } catch(e){ showError(e.message); }
+  finally { if (btn){ btn.disabled = false; btn.textContent = "⬇ Download PDF"; } }
 }
 
 /* ---------- submit ---------- */
@@ -296,7 +349,7 @@ $("go").addEventListener("click", async () => {
 
   $("overlay").classList.add("show");
   $("go").disabled = true;
-  const t1 = setTimeout(()=> $("overlaySub").textContent = "Writing your tailored resume…", 12000);
+  const t1 = setTimeout(()=> $("overlaySub").textContent = "Writing your tailored resume…", 10000);
   try {
     const res = await fetch("/tailor", {method:"POST", body: fd});
     if (!res.ok){
@@ -315,8 +368,11 @@ $("go").addEventListener("click", async () => {
 });
 function showError(msg){ const el = $("error"); el.textContent = msg; el.classList.add("show"); }
 
-/* ---------- demo badge ---------- */
-fetch("/health").then(r => r.json()).then(d => { if (d.mock) $("demoBadge").classList.remove("hidden"); }).catch(()=>{});
+/* ---------- health (demo badge + PDF availability) ---------- */
+fetch("/health").then(r => r.json()).then(d => {
+  if (d.mock) $("demoBadge").classList.remove("hidden");
+  canCompilePdf = !!d.pdf;
+}).catch(()=>{});
 </script>
 </body>
 </html>

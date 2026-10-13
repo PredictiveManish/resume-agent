@@ -1,10 +1,11 @@
 # Resume Tailor Agent
 
 An AI agent that takes a student's resume and a job description, checks the
-student's proof links, and returns **a preview of what will change and why**,
-a **JD-match score**, and a **ready-to-paste LaTeX resume** for Overleaf.
+student's proof links, and returns **an ATS score before and after**, a
+**preview of every change and why**, and a **ready-to-paste LaTeX resume**
+(plus a one-click PDF).
 
-Built on the **Sarvam AI** chat API (`sarvam-105b`).
+Built on the **Sarvam AI** chat API.
 
 ---
 
@@ -14,118 +15,90 @@ Built on the **Sarvam AI** chat API (`sarvam-105b`).
 resume (.tex | .pdf | text)  +  JD  +  proof links (e.g. GitHub)
         │
         ▼
-   [1] ingest resume  ──► plain text (+ raw LaTeX kept)
-   [2] check proof links (GitHub API / HTTP reachability)
-   [3] ANALYSE  (LLM call 1): JD keywords, matched/missing, gaps, suggestions
-   [4] SCORE    (deterministic, reproducible)
-   [5] REWRITE  (LLM call 2): structured resume + a change list (before/after/why)
-   [6] RENDER   structured data ──► clean, compilable LaTeX
+   ingest → check proofs → [ONE consolidated LLM call]
+        → ATS score BEFORE and AFTER → preview of changes → LaTeX (+ PDF)
         │
         ▼
-   preview + score + improved .tex
+   ATS score · changes · .tex / .pdf · cost
 ```
 
-## Two design decisions worth knowing
+## Design decisions worth knowing
 
-1. **The model never writes raw LaTeX.** It returns *structured JSON*; this
-   code renders the LaTeX from a template. That means the output can never
-   fail to compile, and formatting stays consistent. (See `resume_agent/latex.py`.)
-2. **The score is deterministic and honest.** Keyword coverage, formatting
-   health, and quantified-impact are computed in code, not by the model — so
-   the same resume always scores the same. It is labelled a *JD-match score*,
-   not an official "ATS score" (no such universal score exists).
+1. **The model never writes raw LaTeX.** It returns structured JSON; this code
+   renders the LaTeX from a template. Output can never fail to compile.
+2. **The ATS score is deterministic and shown twice** — on the original resume
+   and on the tailored one — so the student sees the improvement, not just a
+   number. It is a *heuristic JD-match score*, labelled as such.
+3. **Cost is a first-class feature.** One consolidated call by default, thinking
+   mode off, `max_tokens` capped, and the INR cost of every run is computed from
+   the API's token usage and shown to the user.
+4. **Truthfulness guardrail.** The prompt forbids inventing experience,
+   employers, dates, metrics, or skills. The agent *reframes*; it never fabricates.
 
-## Truthfulness guardrail
+## Cost
 
-The rewrite prompt forbids inventing experience, employers, dates, metrics, or
-skills. The agent **reframes real experience**; it does not fabricate. This
-protects students from getting caught, and it is a product requirement, not a
-nice-to-have.
+Sarvam pricing (INR per 1M tokens: input / cached / output):
 
----
+| Model | Input | Output | Notes |
+|---|---|---|---|
+| `sarvam-105b` (default) | ₹29.28 | ₹73.20 | Sarvam's only first-party chat model |
+| `deepseekv4.1-flash` | ₹25.00 | ₹105.00 | open-weight, **beta**, always reasons |
+| `gemma4` | ₹35.00 | ₹90.00 | open-weight, **beta**, no reasoning |
+| `glm5.3` | ₹126.00 | ₹390.00 | open-weight, **beta**, reasons; costlier than 105b |
 
-## Install
+Open-weight models are served on `/v2` and require per-key beta whitelisting;
+this client routes to the right endpoint automatically. There is **no cheaper
+non-beta Sarvam chat model**, so the default everywhere is `sarvam-105b`.
+
+- **Default (one consolidated call):** ~**₹0.15–0.30 per tailoring** on
+  `sarvam-105b` — the resume + JD are sent to the model **once**, not twice.
+- **Two-pass mode** (`RESUME_AGENT_TWO_PASS=1`): an analysis call, then a rewrite
+  call; ~**₹0.25–0.45** (both on `sarvam-105b` by default).
+- **The two things that used to blow the bill up** and are now off by default:
+  *thinking mode* (its tokens bill as output) and an *uncapped* `max_tokens`.
+
+Every response includes the real cost, token counts, and call count, so you can
+see it rather than guess. The UI shows it under the results.
+
+## Install & run
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env      # then put your Sarvam key in .env
-```
+cp .env.example .env        # put your Sarvam key in .env (never share it)
 
-## Web UI (recommended — no terminal needed)
+# Web UI (recommended)
+uvicorn resume_agent.api:app --reload     # open http://127.0.0.1:8000
 
-```bash
-uvicorn resume_agent.api:app --reload
-# then open http://127.0.0.1:8000
-```
-
-The browser UI lets you **drag & drop your resume**, paste the job description,
-add proof links, and click one button. It shows the match score, the keyword
-gaps, and a **before/after preview of every change with the reason**, plus a
-one-click **Download .tex** for Overleaf.
-
-**Try it with no API key** (demo mode, canned example):
-
-```bash
+# Demo mode — no API key needed
 RESUME_AGENT_MOCK=1 uvicorn resume_agent.api:app --reload
 ```
 
-When demo mode is on, the page shows a "Demo mode — no API key" badge.
+If `pdflatex` is installed on the machine, the UI offers a **Download PDF**
+button (LaTeX shell-escape is disabled, so the document cannot run commands).
+Otherwise use the `.tex` download and paste into Overleaf.
 
-## Use — CLI
+## CLI
 
 ```bash
-# Tailor, print a preview, and write the .tex
 python -m resume_agent.cli tailor \
   --resume examples/sample_resume.tex \
   --jd examples/sample_jd.txt \
-  --proof https://github.com/asharao/saferun \
-  --out tailored.tex \
-  --json result.json
+  --proof https://github.com/you/repo \
+  --out tailored.tex --json result.json
 ```
 
-Options:
-- `--resume <path>` (.tex / .pdf / .txt) **or** `--resume-text "<text>"`
-- `--jd <path>` **or** `--jd-text "<text>"`
-- `--proof <url>` (repeatable) — evidence for claims, e.g. a GitHub repo
-- `--out tailored.tex` — the improved LaTeX to paste into Overleaf
-- `--json result.json` — the full structured result
-
-## Use — API
-
-```bash
-uvicorn resume_agent.api:app --reload
-# POST /tailor  (multipart form)
-#   jd_text, resume_text | resume_file, proofs (comma-separated)
-```
-
----
-
-## Cost (Sarvam pricing, per 1M tokens: input / cached / output)
-
-| Model | Input | Output |
-|---|---|---|
-| `sarvam-105b` (default) | ₹29.28 | ₹73.20 |
-| DeepSeek V4 Flash (beta) | ₹19.80 | ₹59.40 |
-| GLM 5.3 Flash (beta) | ₹13.50 | ₹45.00 |
-
-The pipeline makes **2 LLM calls** per tailoring run. With thinking mode
-disabled (the default here — reasoning tokens bill as output), a run costs
-roughly **₹0.5** on `sarvam-105b`. At 100 users × 10 updates/month that is
-about **₹500/month** in model cost — comfortably inside a ₹100/month
-subscription.
+The CLI prints the ATS score before → after, the sub-scores, the change list,
+and the cost.
 
 ## Tests
 
 ```bash
-pytest -q          # runs end-to-end with a MockLLM — no API key needed
+pytest -q        # end-to-end with a MockLLM — no API key needed
 ```
 
----
+## Notes
 
-## Roadmap (not yet built)
-
-- PDF input is supported, but PDF → LaTeX *structure* is impossible; we parse
-  to text and rebuild from the template (by design).
-- Direct Overleaf write-back requires Overleaf's paid Git integration + a
-  per-user token; the current flow outputs a `.tex` to paste in.
-- Web UI, auth, usage metering, and application tracking are next.
+- **PDF → LaTeX structure is not recoverable.** PDF input is parsed to *text* and
+  rebuilt from the template — by design, not a limitation to fix.
+- Direct Overleaf write-back needs Overleaf's paid Git integration; the flow
+  outputs a `.tex` to paste in.

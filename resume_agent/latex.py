@@ -16,15 +16,8 @@ from .models import ResumeData
 # Single-pass escaping: each special char is replaced exactly once, so the
 # braces inside a replacement (e.g. \textbackslash{}) are not re-escaped.
 _ESCAPE_MAP = {
-    "\\": r"\textbackslash{}",
-    "&": r"\&",
-    "%": r"\%",
-    "$": r"\$",
-    "#": r"\#",
-    "_": r"\_",
-    "{": r"\{",
-    "}": r"\}",
-    "~": r"\textasciitilde{}",
+    "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#",
+    "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}",
     "^": r"\textasciicircum{}",
 }
 _ESCAPE_RE = re.compile(r"[\\&%$#_{}~^]")
@@ -36,14 +29,16 @@ def latex_escape(value) -> str:
     return _ESCAPE_RE.sub(lambda m: _ESCAPE_MAP[m.group(0)], str(value))
 
 
+# A clean single-column, ATS-friendly template. No tables, no columns, standard
+# section names — exactly what resume parsers handle well.
 DEFAULT_TEMPLATE = r"""\documentclass[10pt,a4paper]{article}
 \usepackage[margin=0.55in]{geometry}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
-\titleformat{\section}{\normalsize\bfseries}{}{0em}{}[\vspace{-3pt}\hrule]
+\titleformat{\section}{\normalsize\bfseries\MakeUppercase}{}{0em}{}[\vspace{-4pt}\hrule]
 \titlespacing*{\section}{0pt}{7pt}{3pt}
-\setlist[itemize]{leftmargin=1.2em,nosep,topsep=1pt,parsep=0pt}
+\setlist[itemize]{leftmargin=1.15em,nosep,topsep=1pt,parsep=0pt}
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \begin{document}
@@ -147,12 +142,7 @@ def render_resume(data: ResumeData, template_path: Optional[str] = None) -> str:
     contact = latex_escape(" · ".join(contact_parts))
 
     return tpl.render(
-        name=data.name,
-        contact=contact,
-        links=_render_links(data.links),
-        summary=data.summary,
-        skills=data.skills,
-        experience=data.experience,
-        projects=data.projects,
-        education=data.education,
+        name=data.name, contact=contact, links=_render_links(data.links),
+        summary=data.summary, skills=data.skills, experience=data.experience,
+        projects=data.projects, education=data.education,
     )

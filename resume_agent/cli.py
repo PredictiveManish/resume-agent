@@ -9,12 +9,15 @@ from .pipeline import tailor
 
 def _print_preview(result) -> None:
     m = result.match
-    print("=" * 68)
-    print(f"  JD-MATCH SCORE: {m.score}/100   (heuristic — not an official ATS score)")
-    print("=" * 68)
-    print("  Subscores:")
+    print("=" * 70)
+    print(f"  ATS / JD-MATCH SCORE:  {m.score_before}  ->  {m.score}   "
+          f"({'+' if m.delta >= 0 else ''}{m.delta})")
+    print("=" * 70)
+    print("  Subscores (after):")
     for k, v in m.subscores.items():
-        print(f"    - {k}: {v}")
+        before = m.subscores_before.get(k)
+        arrow = f"  (was {before})" if before is not None else ""
+        print(f"    - {k}: {v}{arrow}")
     print(f"\n  Matched keywords ({len(m.matched_keywords)}): "
           f"{', '.join(m.matched_keywords[:15]) or '(none)'}")
     print(f"  Missing keywords ({len(m.missing_keywords)}): "
@@ -28,12 +31,10 @@ def _print_preview(result) -> None:
         print("\n  Suggestions:")
         for s in m.suggestions:
             print(f"    - {s}")
-
     if result.proofs:
         print("\n  Proof checks:")
         for p in result.proofs:
             print(f"    [{'OK' if p.ok else 'X '}] {p.url}  {p.detail}")
-
     if result.changes:
         print(f"\n  Preview of changes ({len(result.changes)}):")
         for c in result.changes:
@@ -41,6 +42,10 @@ def _print_preview(result) -> None:
             print(f"      before: {c.before}")
             print(f"      after : {c.after}")
             print(f"      why   : {c.reason}")
+
+    print(f"\n  Cost: ₹{result.cost_inr:.4f}  "
+          f"({result.calls} call(s), {result.prompt_tokens} in / "
+          f"{result.completion_tokens} out tokens, model {result.model})")
     print()
 
 
@@ -78,7 +83,7 @@ def main(argv=None) -> int:
 
     try:
         result = tailor(resume_arg, jd_text, proof_urls=args.proof, is_text=is_text)
-    except Exception as e:  # noqa: BLE001 — surface a clean CLI error
+    except Exception as e:  # noqa: BLE001
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
